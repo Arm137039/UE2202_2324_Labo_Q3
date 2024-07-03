@@ -11,10 +11,13 @@ public class ClientHandler implements Runnable {
     private BufferedReader in;
     private String role;
 
+
+
     public ClientHandler(Socket socket, PictionaryServer server) {
         this.clientSocket = socket;
         this.server = server;
     }
+
 
     @Override
     public void run() {

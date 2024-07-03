@@ -27,9 +27,11 @@ public class PictionaryServer {
             System.out.println("Server started on port " + PORT);
 
             while (true) {
+                System.out.println("hola");
                 Socket clientSocket = serverSocket.accept();
                 ClientHandler clientHandler = new ClientHandler(clientSocket, this);
                 clients.add(clientHandler);
+                System.out.println("New client connected");
                 new Thread(clientHandler).start();
             }
         } catch (IOException e) {
@@ -61,4 +63,5 @@ public class PictionaryServer {
         Random rand = new Random();
         return words.get(rand.nextInt(words.size()));
     }
+
 }
