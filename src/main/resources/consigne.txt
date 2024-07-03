@@ -1,0 +1,79 @@
+Enoncé
+On vous demande de reproduire fidèlement l’application (composée d’un serveur et d’un client
+lançable en beaucoup d’instances) que vous pouvez voir dans la vidéo suivante :
+https://youtu.be/XXXXXXXXXX
+Le programme est une version client-serveur du jeu “Dessinez, c’est gagné !”. Voici le
+déroulement de l’application :
+• Le serveur est d’abord lancé et attend un client sur le port 3001.
+• Quand le programme client est lancé, celui-ci se connecte au serveur. Comme il est le
+premier à s’y connecter, le serveur le prévient qu’il jouera le rôle de dessinateur.
+• Quand un second client est lancé, il se connecte au serveur. Le serveur le prévient qu’il
+va jouer le rôle de devineur.
+• La partie peut alors commencer.
+• Le serveur envoie 3 mots au dessinateur, tirés au hasard parmi une longue liste de mots
+lue depuis un fichier mots.txt.
+• Les mots sont alors joués un à un :
+o Le dessinateur a 5 secondes pour le dessiner en utilisant sa souris. Le devineur
+voit le dessin en temps réel sur son application personnelle (la hauteur et la
+largeur du dessin étant réduites de moitié pour le devineur).
+o Le devineur doit deviner le mot en utilisant le clavier (la casse n’a pas
+d’importance).
+o Si le devineur trouve le mot, il gagne un point.
+o Le dessinateur voit les points gagnés sur son écran.
+• Le devineur a 60 secondes pour deviner tous les mots.
+• Après les 3 mots, le dessinateur attend le temps imparti pour le devineur.
+• Une fois le temps écoulé, une fenêtre s’affiche du côté dessinateur et devineur pour
+annoncer les points gagnés.
+• Les applications clientes peuvent alors s’arrêter.
+Le serveur doit être capable de gérer plusieurs parties en même temps. Il doit donc pouvoir
+gérer plusieurs dessinateurs et devineurs en même temps.
+Consignes
+• Le projet est à réaliser seul ou à deux (contrairement à ce qui a été annoncé).
+• Votre application doit être réalisée en Java.
+• Vous devez utiliser un seul ServerSocket pour la communication entre les clients et le
+serveur avec un protocole bien défini. L’utilisation de plusieurs ServerSocket est inutile
+et vous coûtera des points.
+• La communication entre les clients doit toujours passée par le serveur (pas de
+discussion directe entre les clients).
+Page 2 sur 2
+• Vous devez utiliser JavaFX pour la partie graphique.
+• Votre modèle doit être correctement testé via JUnit.
+• Votre application doit ressembler le plus possible à celle de la vidéo.
+• Chaque classe et ses méthodes doivent être commentées.
+• Votre architecture doit être construite en suivant l’architecture Modèle-Vue-Contrôleur,
+vue au cours.
+• Le code doit être bien structuré (en packages, classes, méthodes, …).
+• Le code doit suivre les principes de la programmation orientée objet, en utilisant le
+mécanisme de typage, héritage, polymorphisme, liaison tardive, interfaces, classes et
+méthodes abstraites, …
+• Le code doit suivre un style de programmation défensive : afin de réduire les erreurs lors
+de l’exécution du programme, le programme doit utiliser au maximum les mécanismes
+de typage, d’exceptions et d’assertions.
+• Les design patterns doivent être utilisés lors de l’implémentation quand il est possible et
+intéressant de les utiliser.
+• Les conventions de nommage doivent être respectées.
+• Du code dupliqué, code commenté et du code obsolète doivent être évités.
+• Il doit y avoir un minimum de (voire aucun) problèmes ou warnings lors de la
+compilation.
+• Le code ne doit pas être inutilement complexe. À tout moment, il faut éviter un style
+procédural avec des méthodes complexes et beaucoup d’instructions conditionnelles.
+Les méthodes courtes avec des noms bien choisis seront à privilégier.
+• Le code doit être facile à lire et à comprendre et doit être bien documenté.
+• Le code produit doit être indépendant du système d’exploitation.
+• Le code produit ne peut être distribué entre différents étudiants.
+Remise
+• Créez un dépôt nommé UE2202_2324_Labo_Q3 sur GitHub et partagez-le avec moi :
+fpluquet. Ajoutez-moi avec un maximum de droits.
+• Votre dépôt doit contenir un fichier README.md qui explique :
+1. comment lancer votre application
+2. ce qui fonctionne et ce qui ne fonctionne pas.
+3. un lien vers une vidéo de démonstration de votre application (10 minutes
+maximum où vous m’expliquez oralement et visuellement ce qui fonctionne et
+vous me montrez et parlez de l’architecture de votre code dans IntelliJ).
+• Remettez tout votre travail pour la veille de l’examen à 20h00 au plus tard sur votre git.
+Examen
+L’examen sera un examen pratique, incluant des modifications à faire dans un temps imparti,
+permettra de montrer vos capacités à développer en Java. Des questions orales peuvent être
+également posées. La répartition sera la même : 60% pour le projet et 40% pour l'examen.
+Attention : si la note de défense est strictement plus petite que 7/20, nous oublions la note du
+projet et la note de l'examen devient la note finale pour le cours.
