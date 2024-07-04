@@ -14,6 +14,7 @@ public class ClientController {
 
         view.setController(this);
         view.show();
+        connectToServer("localhost", 3001);
     }
 
     public void connectToServer(String host, int port) {
