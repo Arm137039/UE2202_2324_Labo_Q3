@@ -1,41 +1,45 @@
 package server;
 
+import common.network.ObjectSocket;
+import common.network.ServerConstants;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
 public class PictionaryServer {
-    private static final int PORT = 3001;
+
     private ServerSocket serverSocket;
     private List<ClientHandler> clients;
     private List<String> words;
 
     public PictionaryServer() {
         clients = new ArrayList<>();
+        words = new ArrayList<>();
         loadWords();
     }
 
     public static void main(String[] args) {
-        PictionaryServer server = new PictionaryServer();
-        server.start();
+        try {
+            PictionaryServer server = new PictionaryServer();
+            server.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void start() {
-        try {
-            serverSocket = new ServerSocket(PORT);
-            System.out.println("Server started on port " + PORT);
+    public void start() throws IOException {
+        serverSocket = new ServerSocket(ServerConstants.PORT);
+        System.out.println("Server started on port " + ServerConstants.PORT);
 
-            while (true) {
-                System.out.println("hola");
-                Socket clientSocket = serverSocket.accept();
-                ClientHandler clientHandler = new ClientHandler(clientSocket, this);
-                clients.add(clientHandler);
-                System.out.println("New client connected");
-                new Thread(clientHandler).start();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        while (true) {
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("New client connected");
+
+            ObjectSocket objectSocket = new ObjectSocket(clientSocket);
+            ClientHandler clientHandler = new ClientHandler(objectSocket, this);
+            clients.add(clientHandler);
+            new Thread(clientHandler).start();
         }
     }
 
@@ -48,7 +52,6 @@ public class PictionaryServer {
     }
 
     private void loadWords() {
-        words = new ArrayList<>();
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/mots.txt")))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -63,5 +66,4 @@ public class PictionaryServer {
         Random rand = new Random();
         return words.get(rand.nextInt(words.size()));
     }
-
 }
