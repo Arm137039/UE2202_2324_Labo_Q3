@@ -33,14 +33,21 @@ public class PictionaryServer {
         System.out.println("Server started on port " + ServerConstants.PORT);
 
         while (true) {
+            System.out.println("waiting a new client");
             Socket clientSocket = serverSocket.accept();
             System.out.println("New client connected");
 
             ObjectSocket objectSocket = new ObjectSocket(clientSocket);
             ClientHandler clientHandler = new ClientHandler(objectSocket, this);
-            clients.add(clientHandler);
+            synchronized (this){
+                clients.add(clientHandler);
+                notifyClientHandlerAdded();
+            }
             new Thread(clientHandler).start();
         }
+    }
+    public synchronized void notifyClientHandlerAdded() {
+        notifyAll(); // Notify all waiting threads that a new ClientHandler has been added
     }
 
     public synchronized void removeClient(ClientHandler clientHandler) {
@@ -50,6 +57,7 @@ public class PictionaryServer {
     public synchronized List<ClientHandler> getClients() {
         return clients;
     }
+
 
     private void loadWords() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/mots.txt")))) {
