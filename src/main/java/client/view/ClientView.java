@@ -1,13 +1,16 @@
 package client.view;
 
 import client.controller.ClientController;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import java.io.IOException;
 
 public class ClientView {
-    private final Stage stage;
+    private Stage stage;
     private ClientController controller;
     private TextArea messageArea;
     private TextField inputField;

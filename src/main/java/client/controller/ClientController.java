@@ -7,19 +7,36 @@ import java.io.IOException; // Import IOException
 public class ClientController {
     private final ClientModel model;
     private final ClientView view;
+    private final String host;
+    private final int port;
 
-    public ClientController(ClientModel model, ClientView view) {
+    public ClientController(ClientModel model, ClientView view, String host, int port) {
         this.model = model;
         this.view = view;
+        this.host = host;
+        this.port = port;
 
         view.setController(this);
         view.show();
-        connectToServer("localhost", 3001);
+        tryConnectToServer();
+        startReceivingMessages();
     }
 
-    public void connectToServer(String host, int port) {
+    private void startReceivingMessages() {
+        new Thread(() -> {
+            while(true){
+                try {
+                    view.appendMessage((String) model.receiveMessage());
+                } catch (IOException | ClassNotFoundException e) {
+                    view.appendMessage("Failed to receive message: " + e.getMessage());
+                }
+            }
+
+        }).start();
+    }
+    public void tryConnectToServer() {
         try {
-            model.connectToServer(host, port);
+            model.connectToServer(this.host, this.port);
             view.appendMessage("Connected to server.");
         } catch (IOException e) {
             view.appendMessage("Failed to connect to server: " + e.getMessage());

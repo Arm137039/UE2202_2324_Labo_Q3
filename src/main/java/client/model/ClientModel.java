@@ -1,35 +1,38 @@
 package client.model;
 
-import java.io.*;
-import java.net.*;
+import common.network.ObjectSocket;
+import java.io.IOException;
+import java.net.Socket;
 
 public class ClientModel {
     private Socket socket;
-    private PrintWriter out;
-    private BufferedReader in;
+    private ObjectSocket objectSocket;
 
     public void connectToServer(String host, int port) throws IOException {
         socket = new Socket(host, port);
-        out = new PrintWriter(socket.getOutputStream(), true);
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        objectSocket = new ObjectSocket(socket);
     }
 
-    public void sendMessage(String message) {
-        if (out != null) {
-            out.println(message);
+    public void sendMessage(Object message) {
+        if (objectSocket != null) {
+            try {
+                objectSocket.write(message);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    public String receiveMessage() throws IOException {
-        if (in != null) {
-            return in.readLine();
+    public Object receiveMessage() throws IOException, ClassNotFoundException {
+        if (objectSocket != null) {
+            return objectSocket.read();
         }
         return null;
     }
 
     public void closeConnection() throws IOException {
-        if (socket != null) {
-            socket.close();
+        if (objectSocket != null) {
+            objectSocket.close();
         }
     }
 }
