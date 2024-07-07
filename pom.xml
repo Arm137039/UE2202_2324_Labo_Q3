@@ -11,8 +11,8 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>11</maven.compiler.source> <!-- Mise à jour pour Java 11 -->
-    <maven.compiler.target>11</maven.compiler.target> <!-- Mise à jour pour Java 11 -->
+    <maven.compiler.source>21</maven.compiler.source> <!-- Mise à jour pour Java 21 -->
+    <maven.compiler.target>21</maven.compiler.target> <!-- Mise à jour pour Java 21 -->
     <junit.version>5.10.0</junit.version>
   </properties>
 
@@ -25,6 +25,11 @@
     <dependency>
       <groupId>org.openjfx</groupId>
       <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-swing</artifactId>
       <version>21</version>
     </dependency>
     <dependency>

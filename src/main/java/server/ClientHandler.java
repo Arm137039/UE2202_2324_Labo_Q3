@@ -29,20 +29,23 @@ public class ClientHandler implements Runnable {
             assignRole();
 
             if(this.role == "drawer") {
+                this.objectSocket.write("wait");
                 waitForNextClient();
+                //envois le fait que la page "attente d'un coéquipier" peut être fermée
+                this.objectSocket.write("drawer");
                 teammate = server.getClients().get(getClientPlace() + 1);
                 sendWordsToDrawer();
             }
             else{
                 teammate = server.getClients().get(getClientPlace() - 1);
+                this.objectSocket.write("guesser");
             }
 
 
             Object inputObject;
             while ((inputObject = objectSocket.read()) != null) {
-                String inputLine = (String) inputObject; // Assuming the object read is a String
-                teammate.objectSocket.write("Received: " + inputLine);
-                if ("quit".equalsIgnoreCase(inputLine)) {
+                teammate.objectSocket.write(inputObject);
+                if ("quit".equalsIgnoreCase(inputObject.toString())) {
                     break;
                 }
                 // Handle drawing and guessing logic here
@@ -72,8 +75,12 @@ public class ClientHandler implements Runnable {
     }
 
     private void generateRandomWord() {
+        String newWord;
         for(int i = 0; i < 3; i++) {
-            this.words.add(server.getRandomWord());
+            do{//pour pas avoir 2 fois le même mot
+                newWord = server.getRandomWord();
+            }while(this.words.contains(newWord));
+            this.words.add(newWord);
         }
     }
 

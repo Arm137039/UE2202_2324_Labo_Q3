@@ -1,5 +1,8 @@
 
 module ue2202_2324_labo_q3 {
+    requires java.desktop;
+    requires javafx.swing;
+    requires javafx.graphics;
     requires javafx.controls;
     requires javafx.fxml;
 
