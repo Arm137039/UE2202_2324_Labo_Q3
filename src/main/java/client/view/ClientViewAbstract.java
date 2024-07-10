@@ -9,7 +9,9 @@ import client.controller.ClientController;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.*;
+import javafx.scene.Parent;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.*;
@@ -26,11 +28,9 @@ import javafx.util.Duration;
 import javafx.embed.swing.SwingFXUtils;
 import javax.imageio.ImageIO;
 import javafx.scene.image.WritableImage;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 
+public abstract class ClientViewAbstract {
 
-public class ClientView {
     private Stage stage;
     private ClientController controller;
     private Label score = new Label();
@@ -43,18 +43,14 @@ public class ClientView {
     @FXML
     private Label endMessage;
 
-    public ClientView() {
 
+    public ClientViewAbstract() {
     }
 
-    @FXML
-    public void initialize() {
-        //updateScore(5);
-    }
-
-    public void setStage(Stage stage) {
+    private void initialize(Stage stage) {
         this.stage = stage;
     }
+
     public void setController(ClientController controller) {
         this.controller = controller;
     }
@@ -95,14 +91,13 @@ public class ClientView {
             e.printStackTrace();
         }
     }
-
     public void updateScore(int newScore) {
         Platform.runLater(() -> {
             this.scoreMessage.setText("Votre score final est de " + newScore + " points !");
         });
     }
 
-
+    ///////////////////////////////////////////////
     public void showDrawerView() {
         stage.close();
         stage = new Stage();
@@ -199,7 +194,6 @@ public class ClientView {
             }
         });
     }
-
 
     public void showGuesserView() {
         stage = new Stage();

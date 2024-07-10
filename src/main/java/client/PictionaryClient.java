@@ -22,7 +22,8 @@ public class PictionaryClient extends Application {
     @Override
     public void start(Stage primaryStage) {
         model = new ClientModel();
-        view = new ClientView(primaryStage);
+        view = new ClientView();
+        view.setStage(primaryStage);
         controller = new ClientController(model, view, HOST, PORT);
 
     }

@@ -9,8 +9,10 @@ public class ObjectSocket {
 
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
+    private final Socket socket;
 
     public ObjectSocket(Socket socket) throws IOException {
+        this.socket = socket;
         this.out = new ObjectOutputStream(socket.getOutputStream());
         this.in = new ObjectInputStream(socket.getInputStream());
     }
@@ -35,11 +37,15 @@ public class ObjectSocket {
     public <T> T read() throws IOException, ClassNotFoundException {
         return (T) in.readObject();
     }
+    public void flush() throws IOException {
+        out.flush();
+    }
 
     public void close() {
         try {
             this.in.close();
             this.out.close();
+            this.socket.close();
         } catch (IOException e) {
             // Ignore
         }

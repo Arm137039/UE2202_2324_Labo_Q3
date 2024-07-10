@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.view.ClientView" alignment="CENTER" spacing="10">
+    <Label fx:id="endMessage" text="La partie est terminée !" style="-fx-font-size: 28px; -fx-font-family: 'Arial'; -fx-padding: 30px;"/>
+    <Label fx:id="scoreMessage" text="Votre score final est de X points !" style="-fx-font-size: 28px; -fx-font-family: 'Arial'; -fx-padding: 20px;"/>
+</VBox>
+

@@ -7,7 +7,6 @@ import common.network.ObjectSocket;
 import java.util.ArrayList;
 
 public class ClientHandler implements Runnable {
-    //private Socket clientSocket;
     private PictionaryServer server;
     private ObjectSocket objectSocket;
     private List<String> words;
@@ -115,6 +114,9 @@ public class ClientHandler implements Runnable {
             }
         }
         return -1;
+    }
+    public ObjectSocket getObjectSocket(){
+        return this.objectSocket;
     }
 
     private void closeConnection() {

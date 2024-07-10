@@ -52,6 +52,7 @@ public class PictionaryServer {
 
     public synchronized void removeClient(ClientHandler clientHandler) {
         clients.remove(clientHandler);
+        clientHandler.getObjectSocket().close();
     }
 
     public synchronized List<ClientHandler> getClients() {
@@ -74,4 +75,5 @@ public class PictionaryServer {
         Random rand = new Random();
         return words.get(rand.nextInt(words.size()));
     }
+
 }

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Pos?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.view.ClientView" alignment="CENTER" spacing="10">
+    <Label text="En attente d'un coéquipier ..." style="-fx-font-size: 25px; -fx-font-family: 'Arial';"/>
+</VBox>
+
