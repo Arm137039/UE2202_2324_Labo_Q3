@@ -203,25 +203,9 @@ public abstract class ClientViewAbstract {
         VBox pairsContainer = new VBox(10);
         pairsContainer.setAlignment(Pos.CENTER);
 
-        initialezGuesserCanvas(3); // Initialise à la fois les Canvas et les TextField
-
-        // Utilisez les éléments existants dans canvasList et textFieldList
-        for (int i = 0; i < canvasList.size(); i++) {
-            Canvas canvas = canvasList.get(i);
-            TextField textField = textFieldList.get(i); // Utilisez le TextField de textFieldList
-            int finalI = (i*2)+1;
-            textField.setOnKeyReleased(e -> {
-                System.out.println("Envoi de messages : " + finalI + ", " + textField.getText());
-                this.controller.sendMessage(finalI);
-                this.controller.sendMessage(textField.getText());
-            });
-
-            HBox pair = new HBox(10, canvas, textField);
-            HBox.setHgrow(textField, Priority.ALWAYS);
-            pair.setPadding(new Insets(10));
-            pair.setAlignment(Pos.CENTER_LEFT);
-            pairsContainer.getChildren().add(pair);
-        }
+        createNewDraw(pairsContainer);
+        createNewDraw(pairsContainer);
+        createNewDraw(pairsContainer);
 
         // ScrollPane to allow scrolling if there are many pairs
         ScrollPane scrollPane = new ScrollPane(pairsContainer);
@@ -248,23 +232,30 @@ public abstract class ClientViewAbstract {
         stage.setTitle("Devinez");
         stage.show();
     }
-    private void initialezGuesserCanvas(int numberOfDraw){
-        canvasList.clear();
-        textFieldList.clear(); // Assurez-vous que textFieldList est également vidé
-        for(int i = 0; i < numberOfDraw; i++){
-            Canvas canvas = new Canvas(200, 200);
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            gc.setFill(Color.BLACK);
-            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            canvasList.add(canvas);
+    private void createNewDraw(VBox pairsContainer){
+        Canvas canvas = new Canvas(200, 200);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        canvasList.add(canvas);
 
-            // Création et configuration du TextField correspondant
-            TextField textField = new TextField();
-            textField.setPromptText("Entrez votre mot #" + (i + 1));
-            textFieldList.add(textField); // Ajout du TextField à la liste
-        }
+        // Création et configuration du TextField correspondant
+        TextField textField = new TextField();
+        textField.setPromptText("Entrez votre mot :");
+        textFieldList.add(textField); // Ajout du TextField à la liste
+
+        textField.setOnKeyReleased(e -> {
+            System.out.println("Envoi de messages : " + textFieldList.size() + ", " + textField.getText());
+            this.controller.sendMessage((textFieldList.size()*2)+1);
+            this.controller.sendMessage(textField.getText());
+        });
+
+        HBox pair = new HBox(10, canvas, textField);
+        HBox.setHgrow(textField, Priority.ALWAYS);
+        pair.setPadding(new Insets(10));
+        pair.setAlignment(Pos.CENTER_LEFT);
+        pairsContainer.getChildren().add(pair);
     }
-
     public void updateCanvas(String base64String, int index) {
         try {
             // Trim the input string to remove any leading or trailing whitespace

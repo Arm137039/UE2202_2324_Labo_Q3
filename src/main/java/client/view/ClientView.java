@@ -42,6 +42,7 @@ public class ClientView {
     private Label scoreMessage;
     @FXML
     private Label endMessage;
+    private VBox pairsContainer;
 
     public ClientView() {
 
@@ -49,7 +50,8 @@ public class ClientView {
 
     @FXML
     public void initialize() {
-        //updateScore(5);
+        canvasList.clear();
+        textFieldList.clear();
     }
 
     public void setStage(Stage stage) {
@@ -95,13 +97,11 @@ public class ClientView {
             e.printStackTrace();
         }
     }
-
     public void updateScore(int newScore) {
-        Platform.runLater(() -> {
-            this.scoreMessage.setText("Votre score final est de " + newScore + " points !");
-        });
+        Platform.runLater(() -> this.scoreMessage.setText(
+                "Votre score final est de " + newScore + " points !"
+        ));
     }
-
 
     public void showDrawerView() {
         stage.close();
@@ -154,7 +154,6 @@ public class ClientView {
         stage.setTitle("Dessinez");
         stage.show();
     }
-
     private void initializeCanvas(Canvas canvas) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(Color.BLACK); // Set canvas background to black
@@ -172,31 +171,8 @@ public class ClientView {
             gc.lineTo(e.getX(), e.getY());
             gc.stroke();
 
-            try {
-                // Capture du contenu du Canvas dans une BufferedImage
-                WritableImage writableImage = new WritableImage((int) canvas.getWidth(), (int) canvas.getHeight());
-                canvas.snapshot(null, writableImage);
-                BufferedImage originalImage = SwingFXUtils.fromFXImage(writableImage, null);
-
-                // Redimensionnement de l'image
-                BufferedImage resizedImage = new BufferedImage(200, 200, BufferedImage.TYPE_INT_ARGB);
-                java.awt.Graphics2D g2d = resizedImage.createGraphics();
-                g2d.drawImage(originalImage, 0, 0, 200, 200, null);
-                g2d.dispose();
-
-                // Conversion de BufferedImage en tableau de bytes
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ImageIO.write(resizedImage, "png", baos);
-                byte[] imageBytes = baos.toByteArray();
-
-                // Encodage du tableau de bytes en Base64
-                String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
-
-                // Envoi de l'image encodée au serveur
-                controller.sendMessage(encodedImage);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
+            String coordinates = e.getX() + "," + e.getY();
+            controller.sendMessage(coordinates);
         });
     }
 
@@ -206,28 +182,10 @@ public class ClientView {
         BorderPane root = new BorderPane();
 
         // Container for Canvas + TextField pairs
-        VBox pairsContainer = new VBox(10);
+        this.pairsContainer = new VBox(10);
         pairsContainer.setAlignment(Pos.CENTER);
 
-        initialezGuesserCanvas(3); // Initialise à la fois les Canvas et les TextField
-
-        // Utilisez les éléments existants dans canvasList et textFieldList
-        for (int i = 0; i < canvasList.size(); i++) {
-            Canvas canvas = canvasList.get(i);
-            TextField textField = textFieldList.get(i); // Utilisez le TextField de textFieldList
-            int finalI = (i*2)+1;
-            textField.setOnKeyReleased(e -> {
-                System.out.println("Envoi de messages : " + finalI + ", " + textField.getText());
-                this.controller.sendMessage(finalI);
-                this.controller.sendMessage(textField.getText());
-            });
-
-            HBox pair = new HBox(10, canvas, textField);
-            HBox.setHgrow(textField, Priority.ALWAYS);
-            pair.setPadding(new Insets(10));
-            pair.setAlignment(Pos.CENTER_LEFT);
-            pairsContainer.getChildren().add(pair);
-        }
+        createNewDraw();
 
         // ScrollPane to allow scrolling if there are many pairs
         ScrollPane scrollPane = new ScrollPane(pairsContainer);
@@ -254,46 +212,58 @@ public class ClientView {
         stage.setTitle("Devinez");
         stage.show();
     }
-    private void initialezGuesserCanvas(int numberOfDraw){
-        canvasList.clear();
-        textFieldList.clear(); // Assurez-vous que textFieldList est également vidé
-        for(int i = 0; i < numberOfDraw; i++){
-            Canvas canvas = new Canvas(200, 200);
-            GraphicsContext gc = canvas.getGraphicsContext2D();
-            gc.setFill(Color.BLACK);
-            gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
-            canvasList.add(canvas);
+    private void createNewDraw(){
+        Canvas canvas = new Canvas(200, 200);
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setFill(Color.BLACK);
+        gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
+        gc.setLineWidth(1);
+        gc.setStroke(Color.WHITE);
+        canvasList.add(canvas);
 
-            // Création et configuration du TextField correspondant
-            TextField textField = new TextField();
-            textField.setPromptText("Entrez votre mot #" + (i + 1));
-            textFieldList.add(textField); // Ajout du TextField à la liste
-        }
+        // Création et configuration du TextField correspondant
+        TextField textField = new TextField();
+        textField.setPromptText("Entrez votre mot :");
+        textFieldList.add(textField); // Ajout du TextField à la liste
+
+        int osef = textFieldList.size()-1;
+        textField.setOnKeyReleased(e -> {
+            System.out.println("Envoi de messages : " + osef + ", " + textField.getText());
+            this.controller.sendMessage((osef*2)+1);
+            this.controller.sendMessage(textField.getText());
+        });
+
+        HBox pair = new HBox(10, canvas, textField);
+        HBox.setHgrow(textField, Priority.ALWAYS);
+        pair.setPadding(new Insets(10));
+        pair.setAlignment(Pos.CENTER_LEFT);
+        this.pairsContainer.getChildren().add(pair);
     }
-
-    public void updateCanvas(String base64String, int index) {
+    public void updateCanvas(String coordinatesString, int index) {
         try {
-            // Trim the input string to remove any leading or trailing whitespace
-            String trimmedBase64String = base64String.trim();
+            // Parse the coordinates from the input string
+            String[] coordinatesArray = coordinatesString.trim().split(",");
+            double x = Double.parseDouble(coordinatesArray[0]);
+            double y = Double.parseDouble(coordinatesArray[1]);
 
-            // Decode the Base64 string
-            byte[] decodedBytes = Base64.getDecoder().decode(trimmedBase64String);
+            // Scale the coordinates from 500x500 to 200x200
+            double scaledX = x * 200 / 500;
+            double scaledY = y * 200 / 500;
 
-            // Convert the byte array to a BufferedImage
-            ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-            BufferedImage bufferedImage = ImageIO.read(bis);
-            bis.close();
-
-            // Convert BufferedImage to WritableImage
-            WritableImage writableImage = SwingFXUtils.toFXImage(bufferedImage, null);
+            // Ensure the canvasList is large enough for the given index
+            // If not, create new draw(s) until it is
+            if (index >= canvasList.size()) {
+                Platform.runLater(() -> createNewDraw());
+            }
 
             // Update the canvas on the JavaFX thread
             Platform.runLater(() -> {
                 try {
-                    Canvas canvas = this.canvasList.get(index);
+                    Canvas canvas = canvasList.get(index);
                     GraphicsContext gc = canvas.getGraphicsContext2D();
-                    gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight()); // Clear the canvas
-                    gc.drawImage(writableImage, 0, 0, canvas.getWidth(), canvas.getHeight()); // Draw the image
+                    gc.beginPath();
+                    gc.lineTo(scaledX, scaledY);
+                    gc.stroke();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -303,6 +273,7 @@ public class ClientView {
             e.printStackTrace();
         }
     }
+
     public void updateTestField(int number){
         TextField textField = this.textFieldList.get(number);
         textField.setBackground(new Background(new BackgroundFill(Color.GREEN, CornerRadii.EMPTY, Insets.EMPTY)));
