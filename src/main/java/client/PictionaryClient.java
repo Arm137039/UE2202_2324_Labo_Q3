@@ -12,7 +12,6 @@ public class PictionaryClient extends Application {
     private static final String HOST = "localhost";
     private static final int PORT = 3001;
     private ClientModel model;
-    private ClientView view;
     private ClientController controller;
 
     public static void main(String[] args) {
@@ -22,9 +21,8 @@ public class PictionaryClient extends Application {
     @Override
     public void start(Stage primaryStage) {
         model = new ClientModel();
-        view = new ClientView();
-        view.setStage(primaryStage);
-        controller = new ClientController(model, view, HOST, PORT);
+        //view.setStage(primaryStage);
+        controller = new ClientController(model, HOST, PORT, primaryStage);
 
     }
 }

@@ -2,113 +2,162 @@ package client.controller;
 
 import client.model.ClientModel;
 import client.view.ClientView;
-import javafx.application.Platform;
+import client.view.ClientViewAbstract;
+import client.view.GuesserView;
+import client.view.DrawerView;
 
-import java.io.IOException; // Import IOException
+import javafx.application.Platform;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 
 public class ClientController {
     private final ClientModel model;
-    private final ClientView view;
+    private ClientViewAbstract view;
+    private ClientView view2;
     private final String host;
     private final int port;
     private List<String> words;
     private int numberGoodWord;
     private int index = 0;
-    @FXML
-    private Label endMessage;
-    @FXML
-    private Label scoreMessage;
+    private Stage primaryStage;
 
-    public ClientController(ClientModel model, ClientView view, String host, int port) {
+    public ClientController(ClientModel model, String host, int port, Stage primaryStage) {
         this.model = model;
-        this.view = view;
         this.host = host;
         this.port = port;
+        this.primaryStage = primaryStage;
 
-        this.words = new ArrayList<String>();
+        this.words = new ArrayList<>();
         this.words.add("sol");
         this.words.add("toit");
         this.words.add("boite");
 
-        this.view.setController(this);
-
         tryConnectToServer();
-        new Thread(() -> { startReceivingMessages();}).start();
+        new Thread(this::startReceivingMessages).start();
     }
 
     private void startReceivingMessages() {
-        while(true){
+        while (true) {
             Object message = model.receiveMessage();
             if (message instanceof String) {
-                if(!interpretStringMessage((String) message)){
-                    view.updateCanvas((String) message, index);
-                }
-            } else if(message instanceof Integer){
-                int messageAsInt = (int) message;
-                if((messageAsInt % 2) == 0){
-                    index = messageAsInt / 2;
-                } else {
-                    Object wordObject = model.receiveMessage();
-                    if(wordObject instanceof String){
-                        String word = (String) wordObject;
-                        boolean goodWord = verifyWord(messageAsInt, word);
-                        if (goodWord){
-                            numberGoodWord += 1;
-                            view.updateScore(numberGoodWord);
-                            model.sendMessage("bon mot");
-                            model.sendMessage(messageAsInt);
-                        }
-                    }
+                interpretStringMessage((String) message);
+            } else if (message instanceof Integer) {
+                handleIntegerMessage((Integer) message);
+            }
+        }
+    }
+
+    private void handleIntegerMessage(Integer messageAsInt) {
+        if ((messageAsInt % 2) == 0) {
+            index = messageAsInt / 2;
+        } else {
+            Object wordObject = model.receiveMessage();
+            if (wordObject instanceof String) {
+                String word = (String) wordObject;
+                boolean goodWord = verifyWord(messageAsInt, word);
+                if (goodWord) {
+                    numberGoodWord += 1;
+                    Platform.runLater(() -> view.updateScore(numberGoodWord));
+                    model.sendMessage("bon mot");
+                    model.sendMessage(messageAsInt);
                 }
             }
         }
     }
-    private boolean verifyWord(int index, String word){
-        index = (index - 1)/2;
+
+    private boolean verifyWord(int index, String word) {
+        index = (index - 1) / 2;
         return this.words.get(index).equals(word);
     }
-    private boolean interpretStringMessage(String message){
-        final boolean[] result = {true};
-        switch (message){
+
+    private void interpretStringMessage(String message) {
+        switch (message) {
             case "wait":
-                Platform.runLater(() -> this.view.showWaitView());
+                Platform.runLater(this::showWaitView);
                 break;
             case "drawer":
-                Platform.runLater(() -> this.view.showDrawerView());
+                Platform.runLater(this::showDrawerView);
                 break;
             case "guesser":
-                Platform.runLater(() -> this.view.showGuesserView());
+                Platform.runLater(this::showGuesserView);
                 break;
             case "bon mot":
-                //drawer renvois le numéro du bon mot
-                //TODO: voir si il n'y a pas des conflit avec l'envois du canvas par le drawer
                 Object receivedMessage = model.receiveMessage();
                 if (receivedMessage instanceof Integer) {
-                    final int receivedInt = (Integer) receivedMessage;
-                    Platform.runLater(() -> this.view.updateTestField((receivedInt-1)/2));
+                    int receivedInt = (Integer) receivedMessage;
+                    Platform.runLater(() -> view.updateTestField((receivedInt - 1) / 2));
                 }
                 break;
             default:
-                result[0] = false;
+                interpretCanvas(message);
                 break;
         }
-        return result[0];
     }
-    public void tryConnectToServer() {
+    private void interpretCanvas(String message){
+        if(view instanceof GuesserView){
+            Platform.runLater(() -> view.updateCanvas(message, index));
+        }
+    }
+
+    private void tryConnectToServer() {
         try {
             model.connectToServer(this.host, this.port);
         } catch (IOException e) {
-            //TODO: creer une vue qui dit que la connection a échoué
-            //      et qui tente de se reconnecter au bout de 2 sec
+            Platform.runLater(() -> showConnectionErrorView());
+            new Thread(() -> {
+                try {
+                    Thread.sleep(2000);
+                    tryConnectToServer();
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
         }
     }
-    public void setScoreMessage(int points) {
-        this.view.updateScore(points);
+
+    private void showWaitView() {
+        if (!(view2 instanceof ClientView)) {
+            view2 = new ClientView();
+            view2.setController(this);
+            view2.setStage(primaryStage);
+        }
+        view2.showWaitView();
     }
+
+    private void showDrawerView() {
+        if (!(view instanceof DrawerView)) {
+            view = new DrawerView();
+            view.setController(this);
+            view.setStage(primaryStage);
+        }
+        view.showGameView();
+    }
+
+    private void showGuesserView() {
+        if (!(view instanceof GuesserView)) {
+            view = new GuesserView();
+            view.setController(this);
+            view.setStage(primaryStage);
+        }
+        view.showGameView();
+    }
+
+    private void showConnectionErrorView() {
+        if (!(view2 instanceof ClientView)) {
+            view2 = new ClientView();
+            view2.setController(this);
+            view2.setStage(primaryStage);
+        }
+        view2.showWaitView();
+    }
+
+    public void setScoreMessage(int points) {
+        Platform.runLater(() -> view.updateScore(points));
+    }
+
     public void sendMessage(Object message) {
         model.sendMessage(message);
     }
